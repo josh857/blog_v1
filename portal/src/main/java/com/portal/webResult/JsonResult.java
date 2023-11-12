@@ -1,8 +1,8 @@
 package com.portal.webResult;
 
 import com.portal.exception.ServiceException;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
+
 import java.io.Serializable;
 
 

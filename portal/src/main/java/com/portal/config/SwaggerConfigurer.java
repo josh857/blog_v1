@@ -33,16 +33,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfigurer {
 
-        /**
-         * 配置分組swagger
-         * group :自行定義
-         * pathsToMatch : 選擇接口路徑
-         */
-        @Bean
-        public GroupedOpenApi tempApi(){
-            return GroupedOpenApi.builder()
-                    .group("blog")
-                    .pathsToMatch("/v1/Blog/**")
-                    .build();
-        }
+//        /**
+//         * 配置分組swagger
+//         * group :自行定義
+//         * pathsToMatch : 選擇接口路徑
+//         */
+//        @Bean
+//        public GroupedOpenApi tempApi(){
+//            return GroupedOpenApi.builder()
+//                    .group("blog")
+//                    .pathsToMatch("/v1/Blog/**")
+//                    .build();
+//        }
 }

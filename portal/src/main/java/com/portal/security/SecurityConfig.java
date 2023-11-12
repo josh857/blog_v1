@@ -3,61 +3,49 @@ package com.portal.security;
 
 
 
+
 import com.portal.security.jwt.JwtAuthenticationFilter;
-import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.firewall.StrictHttpFirewall;
+
 
 
 
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Resource
-     JwtAuthenticationFilter jwtAuthenticationFilter ;
-    @Resource
-    UserDetail userDetail;
-
+    //jwtFilter檢查並生成 token
+    private final  JwtAuthenticationFilter jwtAuthenticationFilter ;
+    //使用者權限與db 身分認證
+    private final AuthenticationProvider authenticationProvider;
 
     @Bean
         public SecurityFilterChain filterChain (HttpSecurity http) throws Exception {
-        http.cors(Customizer.withDefaults()).csrf().disable()
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .userDetailsService(userDetail)
+        http.csrf().disable()
                 .authorizeHttpRequests((req)->{
-                    req.requestMatchers("/v1/**").permitAll();
+                    req.requestMatchers("/v1/**","/v1/login","/v1/login.html","/**").permitAll();
                             req.anyRequest().authenticated();
                 })
                 .sessionManagement((session)->{
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 //login
                 .formLogin((login)->{
-                    login
-                            .usernameParameter("username")
-                            .passwordParameter("password")
-                            .loginPage("/login.html")
-                            .loginProcessingUrl("/login")
-                            .defaultSuccessUrl("http://localhost:5173/index")
-                            .failureForwardUrl("/login.html")
+                    login   .loginPage("/v1/login.html")
+                            .loginProcessingUrl("/v1/login")
+                            .successForwardUrl("/v1/index.html")
+                            .failureForwardUrl("/v1/login.html")
                             .permitAll();
                 })
                 //logout
@@ -67,27 +55,6 @@ public class SecurityConfig {
            return http.build();
     }
 
-
-    //密碼自動加密
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    //權限管理
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
-
-    //防火牆 csrf
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        StrictHttpFirewall firewall = new StrictHttpFirewall();
-        firewall.setAllowBackSlash(true);
-        firewall.setAllowUrlEncodedDoubleSlash(true);
-        return (web) -> web.httpFirewall(firewall);
-    }
 
 
 
