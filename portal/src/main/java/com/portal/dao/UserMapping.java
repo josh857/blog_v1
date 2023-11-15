@@ -9,4 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface UserMapping extends BaseMapper<User> {
     @Select("SELECT * from user where username = #{username}")
     User currentUserByUsername (String username);
+
+    @Select("SELECT * FROM user where email = #{email}")
+    User getUserByEmail(String email);
 }

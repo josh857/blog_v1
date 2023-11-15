@@ -5,17 +5,20 @@ package com.portal.controller;
 import com.portal.exception.ServiceException;
 import com.portal.pojo.Dto.UserLoginDto;
 import com.portal.pojo.Dto.UserRegistDto;
+import com.portal.pojo.Vo.UserVo;
 import com.portal.service.UserService;
 import com.portal.webResult.JsonResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 
-@CrossOrigin
 @RestController
 @RequestMapping("/v1")
 @Slf4j
@@ -32,16 +35,24 @@ public class SysController {
      */
     @PostMapping("/register")
     @ResponseBody
-    JsonResult<String> register (@RequestBody UserRegistDto dto){
-
+    JsonResult<String> register (@Validated @RequestBody UserRegistDto dto, BindingResult result){
         if(dto==null){
             throw new ServiceException("dto無參數");
         }
-        return  JsonResult.ok(userService.register(dto));
+        if(result.hasErrors()){
+            String message = result.getFieldError().getDefaultMessage();
+            return JsonResult.fail(message);
+        }
+        String message=userService.registerUser(dto);
+        return  JsonResult.ok(message);
     }
 
-
-    //todo 這裡傳輸有問題!!2023/11/10
+    /**
+     * 登入作業
+     * @param email
+     * @param password
+     * @return
+     */
     @RequestMapping ("/login/{email}/{password}")
     JsonResult<String> login (@PathVariable String email,@PathVariable String password){
         UserLoginDto userLoginDto = new UserLoginDto();
@@ -53,6 +64,20 @@ public class SysController {
         return  JsonResult.ok(userService.login(userLoginDto));
     }
 
+
+    /**
+     * 回傳user role 做前端顯示或不顯示
+     * @param email
+     * @return
+     */
+    @GetMapping("/getrole/{email}")
+    JsonResult<UserVo> getuserroleByEmail (@PathVariable String email){
+        if(email==null){
+            throw new ServiceException("找不到用戶email");
+        }
+        UserVo userVo=userService.getUserByEmail(email);
+        return JsonResult.ok(userVo);
+    }
 
     //重定向登入成功首頁頁面
    @RequestMapping("/index.html")

@@ -2,7 +2,6 @@ package com.portal.webResult;
 
 import com.portal.exception.ServiceException;
 import lombok.*;
-
 import java.io.Serializable;
 
 
@@ -13,11 +12,10 @@ public class JsonResult<T> implements Serializable {
       Integer Code ;
 
     //狀態訊息
-     String message ;
+      String message ;
 
     //泛型對象
      T data;
-
 
      /**
       * 以下為成功傳遞
@@ -82,6 +80,18 @@ public class JsonResult<T> implements Serializable {
      */
     public static JsonResult<Void> fail(ServiceException e) {
         return fail(e.getServiceCode(), e.getMessage());
+    }
+
+    /**
+     * validation 傳遞格式message回傳
+     * @param data
+     * @param <T>
+     * @return
+     */
+    public static <T>JsonResult fail( T data) {
+        JsonResult jsonResult = new JsonResult(data);
+        jsonResult.Code=ServiceCode.Internal_Server_Error.getValue();
+        return  jsonResult;
     }
 
     /**

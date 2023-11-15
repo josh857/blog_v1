@@ -1,5 +1,6 @@
 package com.portal.pojo.Entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -30,7 +31,7 @@ public class User  implements UserDetails {
 
     @Schema(name="用戶id",description = "用戶id")
     @TableField(value = "id")
-    @TableId
+    @TableId(value = "id",type= IdType.AUTO)
     private Integer id;
 
 
@@ -63,8 +64,6 @@ public class User  implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
-
-
 
     @Override
     public String getUsername() {

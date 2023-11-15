@@ -26,19 +26,18 @@ public class CommentServiceImpl implements CommentService {
 
     /**
      * 儲存Comment
-     * @param commentdto
+     * @param dto
      * @return
      */
     @Transactional
     @Override
-    public String save(CommentDto commentdto) {
-        Comment comment= new Comment();
-        comment.setName(commentdto.getName());
-        comment.setContent(commentdto.getContent());
+    public String save(CommentDto dto) {
+        //格式化日期
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String date=sdf.format(new Date());
-        comment.setCreatetime(date);
-        comment.setUpdatetime(date);
+        //創建對象
+        Comment comment= new Comment(1,dto.getName(),dto.getContent(),date,date);
+        //儲存討論
         int ans = commentMapping.insert(comment);
         //立即獲得comment_id
         Integer CommentId=comment.getId();
@@ -46,7 +45,8 @@ public class CommentServiceImpl implements CommentService {
         //新增關聯表實體類 並放入 comment_id 與 message_Id
         Message_Comment message_comment= new Message_Comment();
         message_comment.setComment_id(CommentId);
-        message_comment.setMessage_id(Integer.parseInt(commentdto.getMessageId()));
+        message_comment.setMessage_id(Integer.parseInt(dto.getMessageId()));
+        //儲存關聯表
         message_commentMapping.insert(message_comment);
         if(ans<1){
             throw new ServiceException("找不到資料");

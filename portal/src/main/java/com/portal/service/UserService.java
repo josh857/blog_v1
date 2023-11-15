@@ -3,15 +3,15 @@ package com.portal.service;
 
 import com.portal.pojo.Dto.UserLoginDto;
 import com.portal.pojo.Dto.UserRegistDto;
-import com.portal.pojo.Entity.User;
+import com.portal.pojo.Vo.UserVo;
 
 
 public interface UserService {
 
-    User getuserByUserName(String username);
 
-    String register (UserRegistDto registDto);
+    String registerUser (UserRegistDto registDto);
 
     String login(UserLoginDto loginDto);
 
+    UserVo getUserByEmail(String email);
 }

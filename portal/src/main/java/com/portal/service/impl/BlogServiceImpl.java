@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.portal.dao.BlogMapping;
 import com.portal.exception.ServiceException;
+import com.portal.pageUtils.Entitytrans4VoList;
 import com.portal.pageUtils.PageInfo2Vo;
 import com.portal.pojo.Dto.BlogDto;
 import com.portal.pojo.Entity.Blog;
@@ -43,12 +44,13 @@ public class BlogServiceImpl implements BlogService {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 String d = sdf.format(date);
                 Blog blog = new Blog();
-                blog.setImage(blogDto.getImage());
-                blog.setTitle(blogDto.getTitle());
                 blog.setContent(blogDto.getContent());
+                blog.setTitle(blogDto.getTitle());
+                blog.setImage(blogDto.getImage());
                 blog.setCreatedatetime(d);
                 blog.setUpdatetime(d);
-                  ans =blogMapping.insert(blog);
+                //儲存部落格
+                ans =blogMapping.insert(blog);
                 }catch (ServiceException e) {
                         throw new ServiceException(ServiceCode.Internal_Server_Error.getValue(),"處理業務錯誤");
                 }
@@ -65,22 +67,12 @@ public class BlogServiceImpl implements BlogService {
             //分頁管理
             PageHelper.startPage(pageNum,pageSize);
             //取得Blog Entity 列表list
-            List<Blog> list = blogMapping.getBlogs();
+            List<Blog> blogs = blogMapping.getBlogs();
             //新增PageInfo 放入Blog list
-            PageInfo<Blog> pageInfo = new PageInfo<>(list);
+            PageInfo<Blog> pageInfo = new PageInfo<>(blogs);
             //新增Vo list
-            List<BlogVo> vo = new ArrayList<>();
         try {
-            // entity Blog list   轉換Vo list
-            for (Blog blog : pageInfo.getList()) {
-                BlogVo blogvo = new BlogVo();
-                blogvo.setTitle(blog.getTitle());
-                blogvo.setContent(blog.getContent());
-                blogvo.setId(blog.getId());
-                blogvo.setImage(blog.getImage());
-                blogvo.setCreatedatetime(blog.getCreatedatetime());
-                vo.add(blogvo);
-            }
+            List<BlogVo> vo = Entitytrans4VoList.BlogTransfertoVo(blogs);
             //轉換成 Vo 的 pageInfo 回傳
             PageInfo<BlogVo> pageVoInfo= PageInfo2Vo.PageUtil(pageInfo);
             //list 轉換 Volist 放入 pageInfo List
@@ -98,7 +90,6 @@ public class BlogServiceImpl implements BlogService {
      */
     @Override
     public BlogVo getBlogById(Integer id) throws ServiceException{
-        BlogVo blogVo = new BlogVo();
         if(id==null){
             throw new ServiceException(ServiceCode.NOTFOUND.getValue(), "找不到文章id");
         }
@@ -107,17 +98,13 @@ public class BlogServiceImpl implements BlogService {
             if(blog==null){
                 throw new ServiceException(ServiceCode.NOTFOUND.getValue(), "找不到此文章");
             }
-            blogVo.setId(blog.getId());
-            blogVo.setTitle(blog.getTitle());
-            blogVo.setContent(blog.getContent());
-            blogVo.setImage(blog.getImage());
-            blogVo.setCreatedatetime(blog.getCreatedatetime());
+            BlogVo blogVo = new BlogVo(blog.getId(),blog.getTitle(),blog.getContent(),blog.getImage(),blog.getCreatedatetime());
+            return blogVo;
         }catch (ServiceException e){
              e.setServiceCode(ServiceCode.NOTFOUND.getValue());
              e.setMessage("找不到此文章");
              throw e;
         }
-        return blogVo;
     }
 
     @Transactional

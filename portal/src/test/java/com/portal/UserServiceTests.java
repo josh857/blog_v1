@@ -25,7 +25,7 @@ public class UserServiceTests {
         dto.setPassword("000000");
         dto.setNickname("jj");
         dto.setEmail("josh19910507@gmail.com");
-        String token=userService.register(dto);
+        String token=userService.registerUser(dto);
         System.out.println(token);
     }
 
@@ -37,6 +37,13 @@ public class UserServiceTests {
         userLoginDto.setPassword("1234");
         String token=userService.login(userLoginDto);
         System.out.println(token);
+    }
+
+
+    @Test
+    public void getuserByEmail(){
+        User user  = userMapping.getUserByEmail("josh857@gmail.com");
+        System.out.println(user.getRole());
     }
 
 }

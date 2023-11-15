@@ -6,6 +6,7 @@ import com.portal.dao.CommentMapping;
 import com.portal.dao.MessageMapping;
 import com.portal.exception.ServiceException;
 
+import com.portal.pageUtils.Entitytrans4VoList;
 import com.portal.pageUtils.PageInfo2Vo;
 import com.portal.pojo.Dto.MessageDto;
 import com.portal.pojo.Entity.Comment;
@@ -32,6 +33,7 @@ public class MessageServiceImpl implements MessageService {
     @Autowired
     CommentMapping commentMapping;
 
+
     /**
      * 儲存留言區留言訊息
      * @param mdt
@@ -43,14 +45,12 @@ public class MessageServiceImpl implements MessageService {
         if(mdt==null){
             throw new ServiceException(ServiceCode.OK.getValue(), "找不到參數");
         }
-        Message message = new Message();
-        message.setUsername(mdt.getName());
-        message.setContent(mdt.getContent());
-        message.setTitle(mdt.getTitle());
+        //格式化當前日期
         SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
         String date=sdf.format(new Date());
-        message.setCreatetime(date);
-        message.setUpdatetime(date);
+        //創建對象
+        Message message = new Message(1,mdt.getName(),mdt.getContent(),mdt.getTitle(),date,date);
+        //持久層儲存
         int row =messageMapping.insert(message);
         if(row>=1){
             return "儲存成功";
@@ -73,19 +73,11 @@ public class MessageServiceImpl implements MessageService {
         //pageinfo message  將list 放入
         PageInfo<Message> messagePageInfo = new PageInfo<>(messages);
         //將message list 數據 放入 messageVo list中
-        List<MessageVo> vo= new ArrayList<>();
-        for(Message message:messages){
-            MessageVo mv=new MessageVo();
-            mv.setId(message.getId());
-            mv.setName(message.getUsername());
-            mv.setTitle(message.getTitle());
-            mv.setContent(message.getContent());
-            vo.add(mv);
-        }
-
+        List<MessageVo> vo= Entitytrans4VoList.MessageTransfertoVo(messages);
+        //轉換pageinfo 裡內容
         PageInfo<MessageVo> pagevoInfo=PageInfo2Vo.PageUtilmessage(messagePageInfo);
+        //設置轉換vo當前的list
         pagevoInfo.setList(vo);
-        System.out.println(pagevoInfo.getList());
         return pagevoInfo;
     }
 
@@ -104,31 +96,22 @@ public class MessageServiceImpl implements MessageService {
         //根據留言id join message_comment 關聯表 找尋 討論list
         PageHelper.startPage(pagenum,pagesize);
         List<Comment> comments= commentMapping.getcomments(id);
+        //PageInfo component
         PageInfo<Comment> pageInfo = new PageInfo<>(comments);
         //轉換comment 為 vo 放入list
-        List<CommentVo> commentvos= new ArrayList<>();
-        for(Comment c :comments){
-            CommentVo cv = new CommentVo();
-            cv.setId(c.getId());
-            cv.setName(c.getName());
-            cv.setContent(c.getContent());
-            cv.setCreatedate(c.getCreatetime());
-            commentvos.add(cv);
-        }
+        List<CommentVo> commentvos= Entitytrans4VoList.CommenttransfertoVo(comments);
         //分頁管理轉成vo 及  volist
         PageInfo<CommentVo> voPageInfo=PageInfo2Vo.PageUtilComment(pageInfo);
         voPageInfo.setList(commentvos);
-
-        //將留言Message 轉 vo  並將 CommentVo list 放入 MessageVo 裡的屬性 commentVo list
-        MessageVo mvo = new MessageVo();
-        mvo.setName(message.getUsername());
-        mvo.setId(message.getId());
-        mvo.setTitle(message.getTitle());
-        mvo.setContent(message.getContent());
-        mvo.setCreatedate(message.getCreatetime());
-        mvo.setPageinfo(voPageInfo);
-        return mvo;
+        return new MessageVo(message.getId()
+                           ,message.getUsername()
+                           ,message.getTitle()
+                           ,message.getContent()
+                           ,message.getCreatetime()
+                           ,voPageInfo);
     }
+
+
 
 
 }

@@ -5,11 +5,12 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.awt.*;
+import lombok.NoArgsConstructor;
 import java.io.Serializable;
-import java.util.Date;
+
 
 /**
  * @author josh2
@@ -17,6 +18,9 @@ import java.util.Date;
  */
 @Data
 @TableName(value="blog")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Schema(description = "完整部落格實體包裝類")
 public class Blog implements Serializable   {
 

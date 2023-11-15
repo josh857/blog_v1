@@ -2,10 +2,17 @@ package com.portal.pojo.Vo;
 
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class MessageVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -27,4 +34,6 @@ public class MessageVo implements Serializable {
 
     @Schema(description = "討論留言分頁")
     private PageInfo<CommentVo> pageinfo;
+
+
 }

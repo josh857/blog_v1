@@ -1,11 +1,9 @@
 package com.portal.security.jwt;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.portal.dao.UserMapping;
 
+import com.portal.dao.UserMapping;
 import com.portal.exception.ServiceException;
-import com.portal.pojo.Entity.User;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -29,6 +27,7 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 @Configuration
 public class ApplicationConfig {
 
+
     @Resource
     UserMapping userMapping;
 
@@ -38,9 +37,10 @@ public class ApplicationConfig {
           @Override
           public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
               try {
-                  QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-                  queryWrapper.eq("email",username);
-                  return userMapping.selectOne(queryWrapper);
+//                  QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+//                  queryWrapper.eq("email",username);
+//                  return userMapping.selectOne(queryWrapper);
+                    return userMapping.getUserByEmail(username);
               }catch (ServiceException e){
                   throw e;
               }
@@ -75,4 +75,7 @@ public class ApplicationConfig {
         firewall.setAllowUrlEncodedDoubleSlash(true);
         return (web) -> web.httpFirewall(firewall);
     }
+
+
+
 }
